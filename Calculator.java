@@ -15,6 +15,10 @@ public class Calculator{
         currentCount = 0;
         characters = new ArrayList<Character>();
         furthestLeft = 0;
+        leftParenthesis = -1;
+        rightParenthesis = -1;
+        leftPosSwitch = -1;
+        rightPosSwitch = -1;
     }
 
 
@@ -313,9 +317,8 @@ public class Calculator{
         }
     }
 
-    public void solveEquation(Object input){ // main function of Calculator
-        String inputAsString = input.toString();
-        String noSpace = inputAsString.replaceAll("\\s+",""); // remove all whitespace
+    public void solveEquation(String input){ // main function of Calculator
+        String noSpace = input.replaceAll("\\s+",""); // remove all whitespace
         checkSyntax(noSpace);
         readInput(noSpace);
         int operatorPos = 0;
@@ -344,10 +347,10 @@ public static void main(String[] args){
     if (args.length < 1){
         System.out.println("Please provide input the calculator. Ex: \"1 + 1\"");
         System.exit(1);
-    }
-    Object input = args[0];
+    };
+
     Calculator myCalc = new Calculator();
-    myCalc.solveEquation(input);
+    myCalc.solveEquation(args[0]);
     
 
 
