@@ -40,7 +40,7 @@ sleep 1
 echo "((1+2) + 3) * 7 = 42"
 java Calculator "((1+2) + 3) * 7"
 sleep 1
-echo "((((2*7) + 3) / 4) + 8) = 12.15"
+echo "((((2*7) + 3) / 4) + 8) = 12.25"
 java Calculator "((((2*7) + 3) / 4) + 8)"
 sleep 1
 echo "((((((("

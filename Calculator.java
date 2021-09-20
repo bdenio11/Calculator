@@ -21,15 +21,6 @@ public class Calculator{
         rightPosSwitch = -1;
     }
 
-
-    public String reverseString(String input){ // reverses a string
-        String reverse = "";
-        for(int i = input.length()-1; i > -1; i--){
-            reverse += input.charAt(i);
-        }
-        return reverse;
-    }
-
     public double addition(double left, double right){
         return left + right;
     }
@@ -46,72 +37,23 @@ public class Calculator{
         return left / right;
     }
 
-    public double readLeft(int operatorPos){ // reads all characters left of an operator
-        String myNumLeft = "";
-        double left;
-        int negativeCountLeft = 0;
-        boolean signFlag = false;
-        for(int i = operatorPos-1; i > -1 ; i--){ // negative numbers may increment the operator counter. This accounts for that possibility. 
-            if(characters.get(i) == '-'){
-                negativeCountLeft += 1;
-            }
-            if(characters.get(i) == '+' || characters.get(i) == '*' || characters.get(i) == '/' || characters.get(i) == '(' || negativeCountLeft > 1){
-                furthestLeft = i+1;
-                signFlag = true;
-                break;
-            }
-            myNumLeft += characters.get(i);
-        }
-        myNumLeft = reverseString(myNumLeft);
-        left = Double.parseDouble(myNumLeft); 
-        if(!signFlag){
-            furthestLeft = 0;
-        }
-        return left;
-    }
-    public double readRight(int operatorPos){ // reads all characters right of an operator
-        String myNumRight = "";
-        double right;
-        boolean signFlag = false;
-        for(int i = operatorPos+1; i < characters.size(); i++){
-            if(characters.get(i) == '+' ||  characters.get(i) == '*' || characters.get(i) == '/' || characters.get(i) == ')'  ||(i > operatorPos + 1 && characters.get(i) == '-')){
-                furthestRight = i;
-                signFlag = true;
-                break;
-            }
-            myNumRight += characters.get(i);
-        }
-        right = Double.parseDouble(myNumRight); 
-        if(!signFlag ){
-            furthestRight += (characters.size() - furthestRight); // there is no last sign to catch the furthest right so to get the last number take the size of the array - the last sign
-        }
-        return right;
+    public String buildFinalAnswer(){
+        String full = String.valueOf(currentCount);
+        String answer = stripTrailingZeros(full);
+        return answer;
     }
 
-    public void makeCalculation(int operatorPos){
-        double left = readLeft(operatorPos);
-        double right = readRight(operatorPos);
-        double answer = 0;
-        if(characters.get(operatorPos) == '+'){
-            answer = addition(left, right);
-        }
-        if(characters.get(operatorPos) == '-'){
-            answer = subtraction(left, right);
-        }
-        if(characters.get(operatorPos) == '*'){
-            answer = multiplication(left, right);
-        }
-        if(characters.get(operatorPos) == '/'){
-            answer = division(left, right);
-        }
-        currentCount = answer;
-    }
-
-    public void readInput(String input){ // reads string into ArrayList
+    public void checkNumberOfOperators(String input){ // Strange edge cases to explore here
+        int operatorCount = 0;
         for(int i = 0; i < input.length(); i++){
-            characters.add(input.charAt(i));
+            if(input.charAt(i) == '+' || input.charAt(i) == '-' || input.charAt(i) == '*' ||input.charAt(i) == '/'){
+                operatorCount++;
+            }
         }
-        furthestRight = input.length() -1;
+        if(operatorCount == 0 || (operatorCount == 1 && input.charAt(0) == '-')){ // check for - in front of a number as only operator
+            System.out.println("Invalid Operator structure");
+            System.exit(1);
+        }
     }
 
     public int findCorrespondingParenthesis(int location){ // finds the corresponding parenthesis to a )
@@ -153,6 +95,7 @@ public class Calculator{
         }
         return highestOpPos;
     }
+
     public int findHighestOperator(){ // finds the location of the most significant operator and returns its index
         int highestOpPos = -1;
         char highestOpChar = 'c';
@@ -183,6 +126,130 @@ public class Calculator{
         return highestOpPos;
     }
 
+    public void makeCalculation(int operatorPos){
+        double left = readLeft(operatorPos);
+        double right = readRight(operatorPos);
+        double answer = 0;
+        if(characters.get(operatorPos) == '+'){
+            answer = addition(left, right);
+        }
+        if(characters.get(operatorPos) == '-'){
+            answer = subtraction(left, right);
+        }
+        if(characters.get(operatorPos) == '*'){
+            answer = multiplication(left, right);
+        }
+        if(characters.get(operatorPos) == '/'){
+            answer = division(left, right);
+        }
+        currentCount = answer;
+    }
+
+    public void removeParenthesis(){ // removes parenthesis after calculating
+        if(leftParenthesis != -1 && rightParenthesis != -1){
+            characters.remove(leftParenthesis);
+            characters.remove(rightParenthesis - 1); // since we just removed a char subract 1
+            leftPosSwitch = leftParenthesis;
+            rightPosSwitch = rightParenthesis;
+            leftParenthesis = -1;
+            rightParenthesis = -1;
+        }
+    }
+
+    public void readInput(String input){ // reads string into ArrayList
+        for(int i = 0; i < input.length(); i++){
+            characters.add(input.charAt(i));
+        }
+        furthestRight = input.length() -1;
+    }
+
+    public double readLeft(int operatorPos){ // reads all characters left of an operator
+        String myNumLeft = "";
+        double left;
+        int negativeCountLeft = 0;
+        boolean signFlag = false;
+        for(int i = operatorPos-1; i > -1 ; i--){ // negative numbers may increment the operator counter. This accounts for that possibility. 
+            if(characters.get(i) == '-'){
+                negativeCountLeft += 1;
+            }
+            if(characters.get(i) == '+' || characters.get(i) == '*' || characters.get(i) == '/' || characters.get(i) == '(' || negativeCountLeft > 1){
+                furthestLeft = i+1;
+                signFlag = true;
+                break;
+            }
+            myNumLeft += characters.get(i);
+        }
+        myNumLeft = reverseString(myNumLeft);
+        left = Double.parseDouble(myNumLeft); 
+        if(!signFlag){
+            furthestLeft = 0;
+        }
+        return left;
+    }
+
+    public double readRight(int operatorPos){ // reads all characters right of an operator
+        String myNumRight = "";
+        double right;
+        boolean signFlag = false;
+        for(int i = operatorPos+1; i < characters.size(); i++){
+            if(characters.get(i) == '+' ||  characters.get(i) == '*' || characters.get(i) == '/' || characters.get(i) == ')'  ||(i > operatorPos + 1 && characters.get(i) == '-')){
+                furthestRight = i;
+                signFlag = true;
+                break;
+            }
+            myNumRight += characters.get(i);
+        }
+        right = Double.parseDouble(myNumRight); 
+        if(!signFlag ){
+            furthestRight += (characters.size() - furthestRight); // there is no last sign to catch the furthest right so to get the last number take the size of the array - the last sign
+        }
+        return right;
+    }
+
+    public void removeEquationChunk(){ // removes a calcualted chunk of characters form the array. 
+        ArrayList<Character> temp = new ArrayList<Character>();
+        String currentCountStr = String.valueOf(currentCount); 
+        for (int i =0 ; i < furthestLeft; i ++){
+            temp.add(characters.get(i));
+        }
+        for (int i = 0; i < currentCountStr.length(); i++){
+            temp.add(currentCountStr.charAt(i));
+        }
+        for (int i = furthestRight; i <  characters.size(); i++){
+            temp.add(characters.get(i));
+        }
+        characters = temp;
+    }
+
+    public String reverseString(String input){ // reverses a string
+        String reverse = "";
+        for(int i = input.length()-1; i > -1; i--){
+            reverse += input.charAt(i);
+        }
+        return reverse;
+    }
+
+    public String stripTrailingZeros(String answer){ // removes trailing zeros. 
+        int dotIndex = -1;
+        boolean dotFound = false;
+        boolean okToStrip = true;
+        for(int i = 0; i < answer.length(); i++){
+            if(dotFound){
+                if(answer.charAt(i) != '0'){
+                    okToStrip = false;
+                }
+            }
+            if(answer.charAt(i) == '.'){
+                dotIndex = i;
+                dotFound = true;
+            }
+        }
+        if(okToStrip){
+            answer = answer.substring(0,dotIndex);
+        }
+        return answer;
+    }
+
     public void validateParenthesis(String input){ // simple error checking to validate parenthesis pairing
         int leftCount = 0; // (
         int rightCount = 0; //)
@@ -203,19 +270,6 @@ public class Calculator{
             System.exit(1);
         }
 
-    }
-
-    public void checkNumberOfOperators(String input){ // this is not entirely working. Can be strange edge cases
-        int operatorCount = 0;
-        for(int i = 0; i < input.length(); i++){
-            if(input.charAt(i) == '+' || input.charAt(i) == '-' || input.charAt(i) == '*' ||input.charAt(i) == '/'){
-                operatorCount++;
-            }
-        }
-        if(operatorCount == 0 || (operatorCount == 1 && input.charAt(0) == '-')){ // check for - in front of a number as only operator
-            System.out.println("Invalid Operator structure");
-            System.exit(1);
-        }
     }
 
     public void checkSyntax(String input){ // looks for invalid syntax in an expression
@@ -261,60 +315,6 @@ public class Calculator{
                 }
             }
         }
-
-
-    }
-
-    public void removeEquationChunk(){ // removes a calcualted chunk of characters form the array. 
-        ArrayList<Character> temp = new ArrayList<Character>();
-        String currentCountStr = String.valueOf(currentCount); 
-        for (int i =0 ; i < furthestLeft; i ++){
-            temp.add(characters.get(i));
-        }
-        for (int i = 0; i < currentCountStr.length(); i++){
-            temp.add(currentCountStr.charAt(i));
-        }
-        for (int i = furthestRight; i <  characters.size(); i++){
-            temp.add(characters.get(i));
-        }
-        characters = temp;
-    }
-
-    public String stripTrailingZeros(String answer){ // removes trailing zeros. 
-        int dotIndex = -1;
-        boolean dotFound = false;
-        boolean okToStrip = true;
-        for(int i = 0; i < answer.length(); i++){
-            if(dotFound){
-                if(answer.charAt(i) != '0'){
-                    okToStrip = false;
-                }
-            }
-            if(answer.charAt(i) == '.'){
-                dotIndex = i;
-                dotFound = true;
-            }
-        }
-        if(okToStrip){
-            answer = answer.substring(0,dotIndex);
-        }
-        return answer;
-    }
-    public String buildFinalAnswer(){
-        String full = String.valueOf(currentCount);
-        String answer = stripTrailingZeros(full);
-        return answer;
-    }
-
-    public void removeParenthesis(){ // removes parenthesis after calculating
-        if(leftParenthesis != -1 && rightParenthesis != -1){
-            characters.remove(leftParenthesis);
-            characters.remove(rightParenthesis - 1); // since we just removed a char subract 1
-            leftPosSwitch = leftParenthesis;
-            rightPosSwitch = rightParenthesis;
-            leftParenthesis = -1;
-            rightParenthesis = -1;
-        }
     }
 
     public void solveEquation(String input){ // main function of Calculator
@@ -339,21 +339,15 @@ public class Calculator{
             }
             makeCalculation(operatorPos); // there is a perenthesis on the left side of the operator;
             removeEquationChunk();
-            
         }
     }
- 
 public static void main(String[] args){
     if (args.length != 1){
         System.out.println("Please provide one input to the calculator. Ex: \"1 + 1\"");
         System.exit(1);
     };
-
     Calculator myCalc = new Calculator();
     myCalc.solveEquation(args[0]);
-    
-
-
     }   
 
 }
