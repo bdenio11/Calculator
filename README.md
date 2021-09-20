@@ -22,3 +22,7 @@ If you do not you will get the following error message.
 
 > Please provide one input to the calculator. Ex: "1 + 1"
 
+## Shell script
+To run the shell script open a bash terminal and enter the command
+  > bash testCalculator.sh
+
