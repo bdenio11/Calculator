@@ -344,8 +344,8 @@ public class Calculator{
     }
  
 public static void main(String[] args){
-    if (args.length < 1){
-        System.out.println("Please provide input the calculator. Ex: \"1 + 1\"");
+    if (args.length != 1){
+        System.out.println("Please provide one input to the calculator. Ex: \"1 + 1\"");
         System.exit(1);
     };
 
